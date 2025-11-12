@@ -20,3 +20,21 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+### Toit ###
+# Package lock files
+package.lock
+.packages/
+
+# Build artifacts
+.build/
+build/
+
+# Toit cache
+.toit_cache/
+
+# Compiled snapshots
+*.snapshot
+
+# IDE specific
+.idea/
