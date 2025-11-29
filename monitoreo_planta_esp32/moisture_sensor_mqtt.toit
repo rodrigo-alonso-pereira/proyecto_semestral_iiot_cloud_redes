@@ -1,8 +1,15 @@
 import gpio
 import gpio.adc
+import mqtt
+import encoding.json
 
 // --- Constantes de Configuración ---
 PIN_SENSOR ::= 34 // Pin ADC1 (GPIO 32-39)
+CLIENT_ID ::= "lab_1" // Dejar vacío para generar uno aleatorio
+HOST ::= "mqtt.fabricainteligente.cl" // Broker público de MQTT
+TOPIC ::= "usach_redes/test" // Tema MQTT para publicar datos
+USERNAME ::= "usach_redes" // Nombre de usuario MQTT
+PASSWORD ::= "usachredes" // Contraseña MQTT
 
 // Datos de calibracion 
 VALOR_AIRE ::= 2.2269999999999998685 // Alto valor ADC (seco) -> Mapea a 0%
@@ -12,11 +19,16 @@ VALOR_AGUA ::= 0.89000000000000001332 // Bajo valor ADC (húmedo) -> Mapea a 100
 main:
   pin := gpio.Pin PIN_SENSOR
   adc := adc.Adc pin
+  client := mqtt.Client --host=HOST // Crear cliente MQTT
+  options := mqtt.SessionOptions
+      --client-id=CLIENT-ID
+      --username=USERNAME 
+      --password=PASSWORD
+  client.start --options=options // Iniciar conexión MQTT (con autenticación)
 
   print "Iniciando monitor de humedad del suelo..."
   print "Pin: $PIN_SENSOR"
-  print "Calibración"
-  print "---"
+  print "Conectando al broker MQTT en '$HOST' y publicando en el topico: '$TOPIC'"
 
   while true:
     valor_bruto := adc.get //Valor medido por el sensor
@@ -32,8 +44,15 @@ main:
     porcentaje := max 0.0 (min 100.0 porcentaje_raw)
 
     print "Valor Bruto: $valor_bruto -> Humedad: $(%.2f porcentaje)%"
+    payload := json.encode {  // Crear payload JSON
+      "humedad_bruto": valor_bruto, 
+      "humedad_porcentaje": porcentaje 
+    } 
+    client.publish TOPIC payload // Publicar datos en el tópico MQTT
     
-    sleep --ms=2000 // Leer cada 2 segundos
+    sleep --ms=5000 // Leer cada 5 segundos
+  
+  client.close // Cerrar conexión MQTT al finalizar (nunca se alcanza aquí)
 
 
 // --- Función de Utilidad (Traducción de map() de Arduino) ---
