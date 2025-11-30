@@ -7,6 +7,7 @@ import encoding.json
 PIN_SENSOR ::= 34 // Pin ADC1 (GPIO 32-39)
 CLIENT_ID ::= "lab_1" // Dejar vacío para generar uno aleatorio
 HOST ::= "mqtt.fabricainteligente.cl" // Broker público de MQTT
+// TOPIC ::= "usach/test/humedad" // Tema MQTT para publicar datos
 TOPIC ::= "usach_redes/test" // Tema MQTT para publicar datos
 USERNAME ::= "usach_redes" // Nombre de usuario MQTT
 PASSWORD ::= "usachredes" // Contraseña MQTT
