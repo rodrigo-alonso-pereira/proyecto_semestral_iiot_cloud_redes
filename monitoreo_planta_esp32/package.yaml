@@ -1,4 +1,7 @@
 dependencies:
+  dhtxx:
+    url: github.com/toitware/toit-dhtxx
+    version: ^1.10.0
   hc-sr04:
     url: github.com/lask/toit-hc-sr04
     version: ^2.2.0
