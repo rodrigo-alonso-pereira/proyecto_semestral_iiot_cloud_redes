@@ -1,14 +1,16 @@
-import gpio
-import gpio.adc
-import mqtt
-import encoding.json
+import gpio // Toit GPIO library
+import gpio.adc // Toit ADC library
+import dhtxx // Toit DHTxx sensor library
+import mqtt // Toit MQTT library
+import encoding.json // Toit JSON encoding library
 
 // --- Constantes de Configuración ---
-PIN_SENSOR ::= 34 // Pin ADC1 (GPIO 32-39)
+PIN_SENSOR_MOISTURE ::= 34 // Pin ADC1 (GPIO 32-39)
+PIN_SENSOR_DHT11 ::=  32 // Pin para DHT11
 CLIENT_ID ::= "lab_1" // Dejar vacío para generar uno aleatorio
 HOST ::= "mqtt.fabricainteligente.cl" // Broker público de MQTT
-// TOPIC ::= "usach/test/humedad" // Tema MQTT para publicar datos
-TOPIC ::= "usach_redes/test" // Tema MQTT para publicar datos
+TOPIC ::= "usach/test/humedad" // Tema MQTT para publicar datos
+//TOPIC ::= "usach_redes/test" // Tema MQTT para publicar datos
 USERNAME ::= "usach_redes" // Nombre de usuario MQTT
 PASSWORD ::= "usachredes" // Contraseña MQTT
 
@@ -18,8 +20,15 @@ VALOR_AGUA ::= 0.89000000000000001332 // Bajo valor ADC (húmedo) -> Mapea a 100
 
 // --- Programa Principal ---
 main:
-  pin := gpio.Pin PIN_SENSOR
+  // Configuración del sensor de humedad del suelo (sensor resistivo)
+  pin := gpio.Pin PIN_SENSOR_MOISTURE
   adc := adc.Adc pin
+
+  // Configuración del sensor DHT11 (temperatura y humedad ambiental)
+  pin_dht11 := gpio.Pin PIN_SENSOR_DHT11
+  driver := dhtxx.Dht11 pin_dht11
+
+  // Configuración del cliente MQTT
   client := mqtt.Client --host=HOST // Crear cliente MQTT
   options := mqtt.SessionOptions
       --client-id=CLIENT-ID
@@ -27,30 +36,33 @@ main:
       --password=PASSWORD
   client.start --options=options // Iniciar conexión MQTT (con autenticación)
 
-  print "Iniciando monitor de humedad del suelo..."
-  print "Pin: $PIN_SENSOR"
+  print "Iniciando monitor de planta..."
+  print "Pin HUMEDAD_SUELO: $PIN_SENSOR_MOISTURE"
+  print "Pin TEMPERATURA_HUMEDAD_AMBIENTAL: $PIN_SENSOR_DHT11"
   print "Conectando al broker MQTT en '$HOST' y publicando en el topico: '$TOPIC'"
 
   while true:
+    /* Sensor de humedad del suelo */
     valor_bruto := adc.get //Valor medido por el sensor
 
-    // Mapear el valor bruto a un porcentaje (0.0 a 100.0)
-    // Se usa el rango de entrada INVERSO (VALOR_AIRE a VALOR_AGUA)
-    // para mapear al rango de salida (0.0 a 100.0).
+    // Mapear el valor bruto a un porcentaje (0.0 a 100.0 | seco a húmedo)
     porcentaje_raw := map_range valor_bruto VALOR_AIRE VALOR_AGUA 0.0 100.0
 
-    // Restringir el valor entre 0 y 100 (Clamping)
-    // Esto evita valores como -5% o 105% si la lectura
-    // se sale ligeramente del rango de calibración.
+    // Restringir el valor entre 0 y 100 (Clamping) evitar valores fuera de rango
     porcentaje := max 0.0 (min 100.0 porcentaje_raw)
 
-    print "Valor Bruto: $valor_bruto -> Humedad: $(%.2f porcentaje)%"
+    /* Sensor de temperatura y humedad ambiental */
+    temperatura_ambiental := driver.read.temperature
+    humedad_ambiental := driver.read.humidity
+
+    /* Publicación MQTT */
     payload := json.encode {  // Crear payload JSON
-      "humedad_bruto": valor_bruto, 
-      "humedad_porcentaje": porcentaje 
-    } 
+      "humedad_suelo_bruto": valor_bruto, 
+      "humedad_suelo_porcentaje": porcentaje,
+      "temperatura_ambiental_celsius": temperatura_ambiental,
+      "humedad_ambiental_porcentaje": humedad_ambiental
+    }
     client.publish TOPIC payload // Publicar datos en el tópico MQTT
-    
     sleep --ms=5000 // Leer cada 5 segundos
   
   client.close // Cerrar conexión MQTT al finalizar (nunca se alcanza aquí)
