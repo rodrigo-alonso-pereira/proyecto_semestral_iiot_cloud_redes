@@ -68,7 +68,7 @@ main:
   client.close // Cerrar conexión MQTT al finalizar (nunca se alcanza aquí)
 
 
-// --- Función de Utilidad (Traducción de map() de Arduino) ---
+// Función para mapear un valor de un rango a otro.
 map_range value in_min in_max out_min out_max:
   value_float := value.to_float // valor sensor actual
   in_min_float := in_min.to_float // valor seco (VALOR_AIRE)
