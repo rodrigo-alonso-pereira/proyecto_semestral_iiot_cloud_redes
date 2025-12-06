@@ -47,7 +47,7 @@ map_range value in_min in_max out_min out_max -> float:
 
 // Funcion para corroborar hora NTP
 check_ntp_time now/Time:
-    if now < (Time.parse "2025-12-01T00:00:00Z"): // 
+    if now < (Time.parse "2025-12-07T01:40:00Z"):
       result ::= ntp.synchronize
       if result:
         adjust-real-time-clock result.adjustment

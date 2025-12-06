@@ -39,6 +39,17 @@ class TempAndHumSensor implements Sensor:
     return humedad.to_float // Retornar la humedad como float
 
 // Implementacion sensor de luz
+class LightSensor implements Sensor:
+    pin_ /gpio.Pin
+    adc_ /adc.Adc
+    
+    constructor .pin_:
+        this.pin_ = pin_ // Inicializar el pin
+        this.adc_ = adc.Adc pin_ // Inicializar ADC en el pin dado
+    
+    read -> float:
+        valor_bruto := adc_.get //Valor medido por el sensor
+        return valor_bruto.to_float // Retornar el valor como float
 
 // Clase para muestrear un sensor en ráfaga.
 class BurstSampler:
@@ -48,6 +59,7 @@ class BurstSampler:
     this.sensor_ = sensor_
 
   // Método para tomar múltiples muestras con un retardo opcional entre ellas.
+  // reader es un block que define cómo leer del sensor.
   sample --count/int=10 --delay_ms/int=25 [reader] -> List:
     samples := [] // Lista dinámica vacía.
     

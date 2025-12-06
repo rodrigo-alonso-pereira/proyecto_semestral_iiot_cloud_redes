@@ -5,6 +5,9 @@ dependencies:
   hc-sr04:
     url: github.com/lask/toit-hc-sr04
     version: ^2.2.0
+  location:
+    url: github.com/toitware/toit-location
+    version: ^1.2.1
   mqtt:
     url: github.com/toitware/mqtt
     version: ^2.13.1
