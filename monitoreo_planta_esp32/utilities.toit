@@ -51,3 +51,9 @@ check_ntp_time now/Time:
       result ::= ntp.synchronize
       if result:
         adjust-real-time-clock result.adjustment
+
+// Función auxiliar para convertir valores con overflow de 16 bits signed a 32 bits unsigned.
+to_unsigned_32 value/int -> int:
+  if value < 0: // Si es negativo, fue overflow de 16 bits signed
+    return value + 65536  // Convertir a unsigned 32 bits sumando 2^16
+  return value

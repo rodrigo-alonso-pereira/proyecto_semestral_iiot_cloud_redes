@@ -58,9 +58,9 @@ main:
       
       // Estadísticas del sistema
       process_stats := system.process_stats
-      memoria_usada_b := process_stats[1] // Index 1: Lo que tus variables pesan
-      memoria_reservada_b := process_stats[2]  // Index 2: Lo que tu proceso abarca
-      memoria_sistema_libre_b := process_stats[7]  // Index 7: Lo que el sistema tiene libre
+      memoria_usada_b := to_unsigned_32 process_stats[1] // Index 1: Lo que tus variables pesan
+      memoria_reservada_b := to_unsigned_32 process_stats[2]  // Index 2: Lo que tu proceso abarca
+      memoria_sistema_libre_b := to_unsigned_32 process_stats[7]  // Index 7: Lo que el sistema tiene libre
 
       // Contenedores cargados
       lista_imagenes := containers.images
