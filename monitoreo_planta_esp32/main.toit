@@ -12,9 +12,14 @@ import net.wifi as wifi
 import.utilities
 import.sensors
 import.config
+import watchdog show WatchdogServiceClient
 
 main:
   print "Iniciando secuencia de telemetría..."
+  client := WatchdogServiceClient // Crear un cliente de watchdog
+  client.open // Conectar al proveedor que ha sido iniciado anteriormente.
+  dog := client.create "usach.redes.monitoreo_planta_esp32" // Crear un watchdog
+  dog.start --s=WATCHDOG_TIMEOUT_S // Requerir alimentación cada 90 segundos
 
   try:
     /* FASE 1: Configuración e Inicialización */
@@ -30,12 +35,12 @@ main:
     sampler_light := BurstSampler light_sensor // Inicializar muestreador de sensor de luz
 
     // Configuracion del cliente MQTT
-    client := mqtt.Client --host=MQTT-HOST // Crear cliente MQTT
+    client_mqtt := mqtt.Client --host=MQTT-HOST // Crear cliente MQTT
     options := mqtt.SessionOptions
         --client-id=MQTT-CLIENT-ID
         --username=MQTT-USERNAME
         --password=MQTT-PASSWORD
-    client.start --options=options // Iniciar conexión MQTT (con autenticación)
+    client_mqtt.start --options=options // Iniciar conexión MQTT (con autenticación)
 
     // Configuracion de location
     location := location.Location LATITUD_DEVICE LONGITUD_DEVICE
@@ -133,8 +138,10 @@ main:
         }
       }
 
-      /* FASE 4: Publicación y Espera */
-      client.publish MQTT_TOPIC payload
+      /* FASE 4: Publicación, Verificacion y Espera */
+      client_mqtt.publish MQTT_TOPIC payload // Publicar el payload en el tópico MQTT
+      dog.feed // Alimentar el watchdog después de completar la adquisición y publicación
+
       sleep --ms=FREQUENCY_MS // Esperar el intervalo configurado antes de la siguiente lectura.
     
   finally:

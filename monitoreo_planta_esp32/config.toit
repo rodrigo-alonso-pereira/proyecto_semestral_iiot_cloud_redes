@@ -19,7 +19,8 @@ VALOR_LUZ ::= 3.1450000000000000178
 // Configuración de Adquisición
 BURST_COUNT    ::= 100   // Cantidad de muestras para estadística
 BURST_DELAY_MS ::= 25   // Tiempo entre muestras (ms)
-FREQUENCY_MS  ::= 60000 // 1 minuto de intervalo entre envíos de datos (ms)
+WATCHDOG_TIMEOUT_S ::= 90   // Tiempo de timeout del watchdog (s)   
+FREQUENCY_MS  ::= 57000 // 58 segundos de intervalo entre envíos de datos (ms)
 
 // Canales a escanear
 SCAN_CHANNELS ::= #[1, 4, 5, 6, 7, 2, 8, 9, 10, 11, 3]
