@@ -5,8 +5,8 @@ import gpio.adc
 PIN_SENSOR ::= 34 // Pin ADC1 (GPIO 32-39)
 
 // Datos de calibracion 
-VALOR_AIRE ::= 2.2269999999999998685 // Alto valor ADC (seco) -> Mapea a 0%
-VALOR_AGUA ::= 0.89000000000000001332 // Bajo valor ADC (húmedo) -> Mapea a 100%
+VALOR_AIRE ::= 2.2414302477183718487  // Alto valor ADC (seco) -> Mapea a 0%
+VALOR_AGUA ::= 0.8960187217559711925 // Bajo valor ADC (húmedo) -> Mapea a 100%
 
 // --- Programa Principal ---
 main:

@@ -17,8 +17,16 @@ main:
   print "   Anote el valor como 'VALOR_AGUA'."
   print "---"
 
+  count := 0
+  muestras := []
+
   while true:
     // adc.get lee el valor ADC de 12 bits (0-4095)
     valor_bruto := adc.get
     print "Valor Bruto Actual: $valor_bruto"
-    sleep --ms=1000 // Pausa de 1 segundo
+    muestras.add valor_bruto
+    count += 1
+    sum := muestras.reduce --initial=0: | acc el | acc + el
+    promedio := sum.to_float / count.to_float
+    print "Muestras tomadas: $count, Promedio Actual: $promedio"
+    sleep --ms=25 // Pausa de 25 milisegundos
