@@ -16,6 +16,11 @@ import watchdog show WatchdogServiceClient
 
 main:
   print "Iniciando secuencia de telemetría..."
+  // Diagnostico de reinicio
+  razon := reset-reason-to-string esp32.reset-reason
+  print "Razón de reinicio: $razon"
+
+  // Inicializar el watchdog
   client := WatchdogServiceClient // Crear un cliente de watchdog
   client.open // Conectar al proveedor que ha sido iniciado anteriormente.
   dog := client.create "usach.redes.monitoreo_planta_esp32" // Crear un watchdog
@@ -44,8 +49,9 @@ main:
 
     // Configuracion de location
     location := location.Location LATITUD_DEVICE LONGITUD_DEVICE
-
-    while true:
+    iteration_count := 0 // Contador de iteraciones para reseteo seguro
+    while iteration_count < MAX_ITERATIONS:
+      iteration_count++
       /* FASE 2: Adquisición y Procesamiento de Datos del ESP32 */
 
       // Se escanea la red WiFi antes de cada adquisición
@@ -101,6 +107,7 @@ main:
       print "  Memoria Usada: $(memoria_usada_b) bytes, Reservada: $(memoria_reservada_b) bytes, Sistema Libre: $(memoria_sistema_libre_b) bytes"
       print "  Contenedores Cargados: $(lista_imagenes.size)"
       print "  Total Run Time: $(total_run_time) seconds"
+      print "  Reset Reason: $(razon)"
       
       // Obtener y verificar hora en servidor NTP
       check_ntp_time Time.now
@@ -112,7 +119,8 @@ main:
         "@timestamp": "$timestamp_str",
         "device": {
           "id": MQTT_CLIENT_ID,
-          "location": "lab-01"
+          "location": "lab-01",
+          "reset_reason": razon
         },
         "metrics": {
           "moisture_raw": filtered_moisture,
@@ -145,6 +153,7 @@ main:
       sleep --ms=FREQUENCY_MS // Esperar el intervalo configurado antes de la siguiente lectura.
     
   finally:
+    print "[MAINT] Límite de iteraciones alcanzado. Reiniciando..."
     // Aseguramos cierre de la interfaz de red
     //if network_interface: network_interface.close
     //print " Red cerrada."

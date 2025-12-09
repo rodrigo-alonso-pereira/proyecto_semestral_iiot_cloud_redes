@@ -1,6 +1,7 @@
 // Módulo de funciones estadísticas puras para procesamiento de series de datos.
 import ntp
 import esp32 show adjust-real-time-clock
+import esp32
 
 // Clase contenedora para funciones estadísticas.
 class SignalProcessor:
@@ -55,5 +56,28 @@ check_ntp_time now/Time:
 // Función auxiliar para convertir valores con overflow de 16 bits signed a 32 bits unsigned.
 to_unsigned_32 value/int -> int:
   if value < 0: // Si es negativo, fue overflow de 16 bits signed
-    return value + 65536  // Convertir a unsigned 32 bits sumando 2^16
+    return value + 65_536  // 2^16
+    // return value + 4_294_967_296  // Convertir a unsigned 32 bits sumando 2^32
+    // return value & 0xFFFFFFFF // Aplicar máscara de 32 bits
   return value
+
+reset_reason_to_string reason/int -> string:
+  if reason < 0 or reason > 16:
+    return "UNKNOWN_RESET_REASON"
+  if reason == esp32.RESET-BROWNOUT: return "RESET-BROWNOUT"
+  if reason == esp32.RESET-CPU-LOCKUP: return "RESET-CPU-LOCKUP"
+  if reason == esp32.RESET-DEEPSLEEP: return "RESET-DEEPSLEEP"
+  if reason == esp32.RESET-EFUSE: return "RESET-EFUSE"
+  if reason == esp32.RESET-EXTERNAL: return "RESET-EXTERNAL"
+  if reason == esp32.RESET-INTERRUPT-WATCHDOG: return "RESET-INTERRUPT-WATCHDOG"
+  if reason == esp32.RESET-JTAG: return "RESET-JTAG"
+  if reason == esp32.RESET-OTHER-WATCHDOG: return "RESET-OTHER-WATCHDOG"
+  if reason == esp32.RESET-PANIC: return "RESET-PANIC"
+  if reason == esp32.RESET-POWER-GLITCH: return "RESET-POWER-GLITCH"
+  if reason == esp32.RESET-POWER-ON: return "RESET-POWER-ON"
+  if reason == esp32.RESET-SDIO: return "RESET-SDIO"
+  if reason == esp32.RESET-SOFTWARE: return "RESET-SOFTWARE"
+  if reason == esp32.RESET-TASK-WATCHDOG: return "RESET-TASK-WATCHDOG"
+  if reason == esp32.RESET-UNKNOWN: return "RESET-UNKNOWN"
+  if reason == esp32.RESET-USB: return "RESET-USB"
+  return "UNKNOWN_RESET_REASON"

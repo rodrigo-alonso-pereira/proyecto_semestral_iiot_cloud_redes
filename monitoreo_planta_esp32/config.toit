@@ -18,9 +18,10 @@ VALOR_LUZ ::= 3.1450000000000000178
 
 // Configuración de Adquisición
 BURST_COUNT    ::= 100   // Cantidad de muestras para estadística
-BURST_DELAY_MS ::= 25   // Tiempo entre muestras (ms)
-WATCHDOG_TIMEOUT_S ::= 90   // Tiempo de timeout del watchdog (s)   
+BURST_DELAY_MS ::= 25   // Tiempo entre muestras (ms) 
 FREQUENCY_MS  ::= 45000 // 45 segundos de intervalo entre envíos de datos (ms) -> Aprox 1 min 
 
-// Canales a escanear
-SCAN_CHANNELS ::= #[1, 4, 5, 6, 7, 2, 8, 9, 10, 11, 3]
+// Configuraciones alternativas:
+SCAN_CHANNELS ::= #[1, 4, 5, 6, 7, 2, 8, 9, 10, 11, 3] // Canales a escanear
+WATCHDOG_TIMEOUT_S ::= 90   // Tiempo de timeout del watchdog (s)  
+MAX_ITERATIONS ::= 60 // Cantidad máxima de iteraciones para reseteo seguro
